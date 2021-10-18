@@ -1,9 +1,9 @@
-app.controller("listaTelefonicaCtrl", function($scope, $http){
+app.controller("listaTelefonicaCtrl", function($scope, contatosAPI, operadorasAPI, serialGenerator){
   $scope.app = "Lista Telefônica"
   $scope.contatos = []
   $scope.operadoras = []
   var carregarContatos = function() {
-    $http.get("http://localhost:3001/contatos")
+    contatosAPI.getContatos()
     .then(({data}) => {
       $scope.contatos = data
     })
@@ -12,16 +12,20 @@ app.controller("listaTelefonicaCtrl", function($scope, $http){
     })
   }
   var carregarOperadoras = function() {
-    $http.get("http://localhost:3001/operadoras").then(({data}) => {
+    operadorasAPI.getOperadoras().then(({data}) => {
       $scope.operadoras = data
     })
   }
 
   carregarContatos()
   carregarOperadoras()
+
+  console.log(serialGenerator.generate())
+
   
   $scope.adicionarContato = function (contato) {
-    $http.post("http://localhost:3001/contatos", contato).then(({ data }) => {
+    contato.serial = serialGenerator.generate()
+    contatosAPI.saveContato(contato).then(() => {
       delete $scope.contato
       $scope.contatoForm.$setPristine()
       carregarContatos()
